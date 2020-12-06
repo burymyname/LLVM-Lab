@@ -1,0 +1,6 @@
+*.bc
+*.so
+
+/lab-src/build/
+/go/
+/libtiff-Release-v4-0-9/
