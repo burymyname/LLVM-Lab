@@ -1,6 +1,7 @@
 #include "llvm/Pass.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/IR/LegacyPassManager.h"
@@ -37,7 +38,15 @@ bool FindCallInstPass::runOnModule(Module &M) {
 	for (auto &F : M) {
 		for (auto &BB : F) {
 			for (auto &I : BB) {
-				
+				if (auto *Call = dyn_cast<CallInst>(&I)) {
+					if (auto *Func = Call->getCalledFunction()) {
+						// outs() << *Call << "\n";
+						// outs() << "target function name: " << Func->getName() << "\n";
+
+						File << *Call << "\n";
+						File << "target function name: " << Func->getName() << "\n";
+					}
+				}
 			}
 		}
 	}
@@ -59,7 +68,7 @@ static RegisterStandardPasses
 
 // register for opt
 static RegisterPass<FindCallInstPass> X(
-	"find-suc-BB",
-	"find successor basic block pass",
+	"find-call-inst",
+	"find call instruction pass",
 	false,
 	true);
