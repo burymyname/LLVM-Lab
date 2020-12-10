@@ -2,6 +2,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/InstIterator.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/IR/LegacyPassManager.h"
@@ -36,16 +37,13 @@ bool FindCallInstPass::runOnModule(Module &M) {
 	raw_fd_ostream File(filename, EC, sys::fs::OF_Text);
 
 	for (auto &F : M) {
-		for (auto &BB : F) {
-			for (auto &I : BB) {
-				if (auto *Call = dyn_cast<CallInst>(&I)) {
-					if (auto *Func = Call->getCalledFunction()) {
-						// outs() << *Call << "\n";
-						// outs() << "target function name: " << Func->getName() << "\n";
+		for (inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I) {
+			// outs() << *I << "\n";
+			if (auto *Call = dyn_cast<CallInst>(&*I)) {
+				if (auto *Func = Call->getCalledFunction()) {
 
 						File << *Call << "\n";
 						File << "target function name: " << Func->getName() << "\n";
-					}
 				}
 			}
 		}
